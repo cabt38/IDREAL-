@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "244824215793",
+    "project_id": "idreal-a383a",
+    "storage_bucket": "idreal-a383a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:244824215793:android:0f11d7d9b3fa0bafa15950",
+        "android_client_info": {
+          "package_name": "com.example.secondly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaUMojOhun-KFYmSmyod3HXC5ScfnqOfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

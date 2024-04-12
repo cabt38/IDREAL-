@@ -1,0 +1,552 @@
+import 'package:flutter/material.dart';
+
+
+enum CardType { Universidad, Bancaria, Trabajo, Transporte }
+
+class CardInfo {
+  final CardType cardType;
+  final Map<String, dynamic> cardData;
+
+  CardInfo({required this.cardType, required this.cardData});
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Mis Tarjetas',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  List<CardInfo> cards = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF361973),
+        flexibleSpace: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset(
+                'assets/imagenes/lago.png',
+                fit: BoxFit.contain,
+                height: 40,
+              ),
+            ],
+          ),
+        ),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView(
+          children: cards
+              .map(
+                (card) => InkWell(
+                  onTap: () {
+                    _navigateToCardDetails(context, card);
+                  },
+                  child: CardItem(
+                    cardInfo: card,
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          _navigateToAddCard(context);
+        },
+        label: Text('Agregar Nueva Tarjeta Virtual'),
+        icon: Icon(Icons.credit_card),
+      ),
+    );
+  }
+
+  void _navigateToAddCard(BuildContext context) async {
+    final newCard = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddCardPage()),
+    );
+    if (newCard != null) {
+      setState(() {
+        cards.add(newCard);
+      });
+    }
+  }
+
+  void _navigateToCardDetails(BuildContext context, CardInfo cardInfo) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardDetailsPage(cardInfo: cardInfo),
+      ),
+    );
+  }
+}
+
+class CardItem extends StatelessWidget {
+  final CardInfo cardInfo;
+
+  CardItem({required this.cardInfo});
+
+  @override
+  Widget build(BuildContext context) {
+    String tipoTarjeta = '';
+    String titular = '';
+
+    switch (cardInfo.cardType) {
+      case CardType.Universidad:
+        tipoTarjeta = 'Universidad';
+        titular = cardInfo.cardData['Nombres'];
+        break;
+      case CardType.Bancaria:
+        tipoTarjeta = 'Bancaria';
+        titular = cardInfo.cardData['Nombres'];
+        break;
+      case CardType.Trabajo:
+        tipoTarjeta = 'Trabajo';
+        titular = cardInfo.cardData['Empresa'];
+        break;
+      case CardType.Transporte:
+        tipoTarjeta = 'Transporte';
+        titular = cardInfo.cardData['Nombre'];
+        break;
+    }
+
+    return Card(
+      elevation: 3,
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$tipoTarjeta',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: const Color.fromARGB(255, 0, 0, 0),
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '$titular',
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CardDetailsPage extends StatelessWidget {
+  final CardInfo cardInfo;
+
+  CardDetailsPage({required this.cardInfo});
+
+  @override
+  Widget build(BuildContext context) {
+    String tipoTarjeta = '';
+    switch (cardInfo.cardType) {
+      case CardType.Universidad:
+        tipoTarjeta = 'Universidad';
+        break;
+      case CardType.Bancaria:
+        tipoTarjeta = 'Bancaria';
+        break;
+      case CardType.Trabajo:
+        tipoTarjeta = 'Trabajo';
+        break;
+      case CardType.Transporte:
+        tipoTarjeta = 'Transporte';
+        break;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF361973),
+        flexibleSpace: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset(
+                'assets/imagenes/lago.png',
+                fit: BoxFit.contain,
+                height: 40,
+              ),
+            ],
+          ),
+        ),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$tipoTarjeta',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: const Color.fromARGB(255, 0, 0, 0),
+              ),
+            ),
+            SizedBox(height: 10),
+            ...cardInfo.cardData.entries.map((entry) {
+              if (cardInfo.cardType == CardType.Universidad) {
+                if (entry.key == 'Nombres' ||
+                    entry.key == 'Nombre Universidad' ||
+                    entry.key == 'Carrera' ||
+                    entry.key == 'ID Carnet') {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      '${entry.key}: ${entry.value}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+              } else if (cardInfo.cardType == CardType.Bancaria) {
+                if (entry.key == 'Nombres' ||
+                    entry.key == 'Número de Tarjeta' ||
+                    entry.key == 'Fecha de Expiración' ||
+                    entry.key == 'CVV') {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      '${entry.key}: ${entry.value}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+              } else if (cardInfo.cardType == CardType.Trabajo) {
+                if (entry.key == 'Empresa' ||
+                    entry.key == 'Nombres' ||
+                    entry.key == 'Número de Identificación' ||
+                    entry.key == 'Ocupación') {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      '${entry.key}: ${entry.value}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+              } else if (cardInfo.cardType == CardType.Transporte) {
+                if (entry.key == 'Nombre' ||
+                    entry.key == 'Número' ||
+                    entry.key == 'Civica Estudiantil') {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      '${entry.key}: ${entry.value}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                }
+              }
+              return SizedBox.shrink();
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AddCardPage extends StatefulWidget {
+  @override
+  _AddCardPageState createState() => _AddCardPageState();
+}
+
+class _AddCardPageState extends State<AddCardPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _cardNumberController = TextEditingController();
+  final TextEditingController _cardHolderNameController =
+      TextEditingController();
+  final TextEditingController _expirationDateController =
+      TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
+  final TextEditingController _empresaController = TextEditingController();
+  final TextEditingController _ocupacionController = TextEditingController();
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _carreraController = TextEditingController();
+  final TextEditingController _universidadController = TextEditingController();
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _nombreEstudianteController =
+      TextEditingController();
+  final TextEditingController _numeroEstudianteController =
+      TextEditingController();
+  final TextEditingController _empresaTrabajoController =
+      TextEditingController();
+  final TextEditingController _numeroTrabajoController =
+      TextEditingController();
+
+  CardType _selectedCardType = CardType.Universidad;
+
+  Map<String, dynamic> _cardData = {
+    'Nombres': '',
+    'Nombre Universidad': '',
+    'Carrera': '',
+    'ID Carnet': '',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF361973),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.asset(
+              'assets/imagenes/lago.png',
+              fit: BoxFit.contain,
+              height: 40,
+            ),
+          ],
+        ),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            );
+          },
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              DropdownButtonFormField<CardType>(
+                value: _selectedCardType,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCardType = value!;
+                    _resetCardData();
+                  });
+                },
+                items: CardType.values.map((CardType type) {
+                  return DropdownMenuItem<CardType>(
+                    value: type,
+                    child: Text(type.toString().split('.').last),
+                  );
+                }).toList(),
+                decoration: InputDecoration(labelText: 'Tipo de Tarjeta'),
+              ),
+              ..._buildCardFields(),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    CardInfo newCard = CardInfo(
+                      cardType: _selectedCardType,
+                      cardData: _cardData,
+                    );
+                    Navigator.pop(context, newCard);
+                  }
+                },
+                child: Text('Agregar Tarjeta'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildCardFields() {
+    switch (_selectedCardType) {
+      case CardType.Universidad:
+        return [
+          TextFormField(
+            controller: _nombreEstudianteController,
+            decoration: InputDecoration(labelText: 'Nombres'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingresa tus nombres';
+              }
+              return null;
+            },
+            onChanged: (value) => _cardData['Nombres'] = value,
+          ),
+          TextFormField(
+            controller: _universidadController,
+            decoration: InputDecoration(labelText: 'Nombre Universidad'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingresa el nombre de la universidad';
+              }
+              return null;
+            },
+            onChanged: (value) => _cardData['Nombre Universidad'] = value,
+          ),
+          TextFormField(
+            controller: _carreraController,
+            decoration: InputDecoration(labelText: 'Carrera'),
+            onChanged: (value) => _cardData['Carrera'] = value,
+          ),
+          TextFormField(
+            controller: _idController,
+            decoration: InputDecoration(labelText: 'ID Carnet'),
+            onChanged: (value) => _cardData['ID Carnet'] = value,
+          ),
+        ];
+      case CardType.Bancaria:
+        return [
+          TextFormField(
+            controller: _nombreController,
+            decoration: InputDecoration(labelText: 'Nombres'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingresa tus nombres';
+              }
+              return null;
+            },
+            onChanged: (value) => _cardData['Nombres'] = value,
+          ),
+          TextFormField(
+            controller: _cardNumberController,
+            decoration: InputDecoration(labelText: 'Número de Tarjeta'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingresa el número de tarjeta';
+              }
+              return null;
+            },
+            onChanged: (value) => _cardData['Número de Tarjeta'] = value,
+          ),
+          TextFormField(
+            controller: _expirationDateController,
+            decoration: InputDecoration(labelText: 'Fecha de Expiración'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingresa la fecha de expiración';
+              }
+              return null;
+            },
+            onChanged: (value) => _cardData['Fecha de Expiración'] = value,
+          ),
+          TextFormField(
+            controller: _cvvController,
+            decoration: InputDecoration(labelText: 'CVV'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingresa el CVV';
+              }
+              return null;
+            },
+            onChanged: (value) => _cardData['CVV'] = value,
+          ),
+        ];
+      case CardType.Trabajo:
+        return [
+          TextFormField(
+            controller: _empresaTrabajoController,
+            decoration: InputDecoration(labelText: 'Empresa'),
+            onChanged: (value) => _cardData['Empresa'] = value,
+          ),
+          TextFormField(
+            controller: _nombreController,
+            decoration: InputDecoration(labelText: 'Nombres'),
+            onChanged: (value) => _cardData['Nombres'] = value,
+          ),
+          TextFormField(
+            controller: _idController,
+            decoration: InputDecoration(labelText: 'Número de Identificación'),
+            onChanged: (value) => _cardData['Número de Identificación'] = value,
+          ),
+          TextFormField(
+            controller: _ocupacionController,
+            decoration: InputDecoration(labelText: 'Ocupación'),
+            onChanged: (value) => _cardData['Ocupación'] = value,
+          ),
+        ];
+      case CardType.Transporte:
+        return [
+          TextFormField(
+            controller: _nombreController,
+            decoration: InputDecoration(labelText: 'Nombre'),
+            onChanged: (value) => _cardData['Nombre'] = value,
+          ),
+          TextFormField(
+            controller: _numeroTrabajoController,
+            decoration: InputDecoration(labelText: 'Número'),
+            onChanged: (value) => _cardData['Número'] = value,
+          ),
+          DropdownButtonFormField<String>(
+            value: 'No',
+            onChanged: (value) => _cardData['Civica Estudiantil'] = value,
+            items: ['Sí', 'No'].map((option) {
+              return DropdownMenuItem<String>(
+                value: option,
+                child: Text(option),
+              );
+            }).toList(),
+            decoration: InputDecoration(labelText: 'Civica Estudiantil'),
+          ),
+        ];
+    }
+  }
+
+  void _resetCardData() {
+    setState(() {
+      _cardData = {
+        'Nombres': '',
+        'Nombre Universidad': '',
+        'Carrera': '',
+        'ID Carnet': '',
+        'Número de Tarjeta': '',
+        'Fecha de Expiración': '',
+        'CVV': '',
+        'Empresa': '',
+        'Número de Identificación': '',
+        'Ocupación': '',
+        'Nombre': '',
+        'Número': '',
+        'Civica Estudiantil': '',
+      };
+    });
+  }
+}
